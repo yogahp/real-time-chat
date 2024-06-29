@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <EnterName v-if="!userName" @user-entered="setUserName" />
-    <ChatWindow v-else :userName="userName" />
+    <EnterName v-if="!userName || !userAvatar" @user-entered="setUser" />
+    <ChatWindow v-else :userName="userName" :userAvatar="userAvatar" />
   </div>
 </template>
 
@@ -18,14 +18,17 @@ export default defineComponent({
   },
   setup() {
     const userName = ref(localStorage.getItem('userName') || '');
+    const userAvatar = ref(localStorage.getItem('avatar') || '');
 
-    const setUserName = (name: string) => {
-      userName.value = name;
+    const setUser = (user: { name: string; avatar: string }) => {
+      userName.value = user.name;
+      userAvatar.value = user.avatar;
     };
 
     return {
       userName,
-      setUserName,
+      userAvatar,
+      setUser,
     };
   },
 });

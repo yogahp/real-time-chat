@@ -11,7 +11,7 @@
           :class="['message', message.sender === userName ? 'sent' : 'received']"
         >
           <div class="avatar" v-if="message.sender !== userName">
-            <img src="https://via.placeholder.com/40" alt="Avatar" />
+            <img :src="message.avatar" alt="Avatar" />
           </div>
           <div class="message-content">
             <div class="message-text">
@@ -20,7 +20,7 @@
             </div>
           </div>
           <div class="avatar" v-if="message.sender === userName">
-            <img src="https://via.placeholder.com/40" alt="Avatar" />
+            <img :src="userAvatar" alt="Avatar" />
           </div>
         </div>
       </div>
@@ -33,17 +33,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, inject, onMounted } from 'vue';
+import { defineComponent, ref, inject, onMounted, PropType } from 'vue';
 
 interface Message {
   text: string;
   sender: string;
+  avatar: string;
 }
 
 export default defineComponent({
   name: 'ChatWindow',
   props: {
     userName: {
+      type: String,
+      required: true,
+    },
+    userAvatar: {
       type: String,
       required: true,
     },
@@ -54,9 +59,9 @@ export default defineComponent({
     const socket = inject('socket') as any;
 
     onMounted(() => {
-      socket.on('chat message', (msg: string, sender: string) => {
+      socket.on('chat message', (msg: string, sender: string, avatar: string) => {
         if (sender !== props.userName) {
-          messages.value.push({ text: msg, sender });
+          messages.value.push({ text: msg, sender, avatar });
         }
       });
     });
@@ -65,8 +70,8 @@ export default defineComponent({
       if (newMessage.value.trim() !== '') {
         const messageText = newMessage.value;
         newMessage.value = '';
-        messages.value.push({ text: messageText, sender: props.userName });
-        socket.emit('chat message', messageText, props.userName);
+        messages.value.push({ text: messageText, sender: props.userName, avatar: props.userAvatar });
+        socket.emit('chat message', messageText, props.userName, props.userAvatar);
       }
     };
 
